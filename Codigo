@@ -1,0 +1,82 @@
+import re
+import json
+import os
+
+# Dicionário para armazenar usuários e senhas
+usuarios = {}
+
+# Função para carregar usuários de um arquivo
+def carregar_usuarios():
+    if os.path.exists('usuarios.json'):
+        with open('usuarios.json', 'r') as file:
+            return json.load(file)
+    return {}
+
+# Função para salvar usuários em um arquivo
+def salvar_usuarios():
+    with open('usuarios.json', 'w') as file:
+        json.dump(usuarios, file)
+
+# Função para validar o formato do email
+def validar_email(email):
+    regex = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
+    return re.match(regex, email)
+
+# Função para validar a senha
+def validar_senha(senha):
+    return len(senha) >= 6  # Exemplo: senha deve ter pelo menos 6 caracteres
+
+def cadastrar_usuarios():
+    print("=== Cadastro de Usuários ===")
+    while True:
+        email = input("Digite o email do novo usuário (ou 'sair' para finalizar): ")
+        if email.lower() == 'sair':
+            break
+        if not validar_email(email):
+            print("Email inválido. Tente novamente.")
+            continue
+        if email in usuarios:
+            print("Email já cadastrado. Tente outro.")
+            continue
+        senha = input("Digite a senha para este usuário (mínimo 6 caracteres): ")
+        if not validar_senha(senha):
+            print("Senha inválida. A senha deve ter pelo menos 6 caracteres.")
+            continue
+        usuarios[email] = senha
+        salvar_usuarios()  # Salva os usuários após cada cadastro
+        print(f"Usuário {email} cadastrado com sucesso!\n")
+
+def login():
+    print("\n=== Sistema de Login ===")
+    email = input("Email: ")
+    senha = input("Senha: ")
+
+    # Verifica se o email está cadastrado e a senha está correta
+    if email in usuarios and usuarios[email] == senha:
+        print("\nLogin bem-sucedido! Bem-vindo!")
+    else:
+        print("\nEmail ou senha incorretos. Tente novamente.")
+
+def menu():
+    global usuarios
+    usuarios = carregar_usuarios()  # Carrega usuários ao iniciar o programa
+    while True:
+        print("\n=== Menu Principal ===")
+        print("1. Cadastrar Usuário")
+        print("2. Fazer Login")
+        print("3. Sair")
+        opcao = input("Escolha uma opção: ")
+
+        if opcao == '1':
+            cadastrar_usuarios()
+        elif opcao == '2':
+            login()
+        elif opcao == '3':
+            print("Saindo do sistema. Até logo!")
+            break
+        else:
+            print("Opção inválida. Tente novamente.")
+
+# Execução do programa
+print("=== Bem-vindo ao Sistema ===")
+menu()  # Chama a função do menu
